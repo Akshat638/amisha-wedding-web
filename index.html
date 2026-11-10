@@ -1401,6 +1401,59 @@ updateMusicButton();
 </script>
 <!-- END: RsvpInteractiveHandlers -->
  <script>
+rsvpForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+
+  const name = document.getElementById('guest-name').value.trim();
+  const phone = document.getElementById('guest-phone').value.trim();
+  const attendance = document.getElementById('attendance-status').value;
+  const partySize = document.getElementById('party-size').value;
+  const song = document.getElementById('dance-song').value.trim();
+  const diet = document.getElementById('dietary-pref').value;
+  const advice = document.getElementById('marriage-advice').value.trim();
+
+  const events = Array.from(
+    document.querySelectorAll('.event-check:checked')
+  )
+    .map(input => input.value)
+    .join(', ');
+
+  const data = {
+    name: name,
+    phone: phone,
+    attendance: attendance,
+    partySize: partySize,
+    events: events,
+    song: song,
+    diet: diet,
+    advice: advice
+  };
+
+  // Show confirmation popup immediately
+  rsvpModal.classList.remove('hidden');
+  rsvpModal.classList.add('flex');
+
+  // Send data to Google Sheets in background
+  fetch(
+    'https://script.google.com/macros/s/AKfycbzNhX4IRqw62fPke7zTbvnFWzUaUn7hGNAMQQJpwzjOg4Rgus99OVbEA3nOICbw6PoY/exec',
+    {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: {
+        'Content-Type': 'text/plain;charset=utf-8'
+      },
+      body: JSON.stringify(data)
+    }
+  ).catch(error => {
+    console.error('RSVP submission error:', error);
+  });
+
+  // Reset form
+  rsvpForm.reset();
+  document.getElementById('attendance-status').value = 'Joyfully Accept';
+});
+</script>
+<script>
 
 const weddingAudio = document.getElementById('wedding-audio');
 
