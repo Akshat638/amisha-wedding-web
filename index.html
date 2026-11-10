@@ -163,12 +163,76 @@
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
     }
+    /* Floating Wedding Music Control */
+.music-toggle {
+    position: fixed;
+    bottom: 22px;
+    right: 20px;
+    z-index: 9999;
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #C5A059;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #581825, #713F43);
+    color: #DFC896;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.mute-slash {
+    display: none;
+}
+
+.music-toggle:not(.is-playing) .sound-waves {
+    display: none;
+}
+
+.music-toggle:not(.is-playing) .mute-slash {
+    display: block;
+}
+
+.music-toggle:active {
+    transform: scale(0.92);
+}
+
+.music-toggle.is-playing #music-icon {
+    animation: musicPulse 1s ease-in-out infinite alternate;
+}
+
+@keyframes musicPulse {
+    from { transform: scale(1); opacity: 0.7; }
+    to { transform: scale(1.2); opacity: 1; }
+}
 </style>
 </head>
 <body class="selection:bg-brand-maroon selection:text-white">
   <audio id="wedding-audio" autoplay loop preload="auto">
     <source src="./madhanya.mp3" type="audio/mpeg">
 </audio>
+<button id="music-toggle" class="music-toggle"
+        type="button" aria-label="Turn music on">
+
+    <svg id="music-icon" viewBox="0 0 24 24"
+         width="19" height="19" fill="none"
+         stroke="currentColor" stroke-width="2"
+         stroke-linecap="round" stroke-linejoin="round">
+
+        <!-- Speaker -->
+        <path d="M11 5 6 9H3v6h3l5 4V5Z"/>
+
+        <!-- Sound waves -->
+        <path class="sound-waves"
+              d="M15.5 8.5a5 5 0 0 1 0 7"/>
+        <path class="sound-waves"
+              d="M19 5a10 10 0 0 1 0 14"/>
+
+        <!-- Mute slash -->
+        <path class="mute-slash" d="M22 9 16 15 M16 9l6 6"/>
+    </svg>
+</button>
 <!-- BEGIN: PetalParticleCanvas -->
 <canvas aria-hidden="true" id="petal-canvas"></canvas>
 <!-- END: PetalParticleCanvas -->
@@ -204,7 +268,7 @@
       Mrs. Jyoti &amp; Mr. Naresh Rathore
     </p>
     <p class="text-[11px] text-stone-500">
-      Granddaughter of Lt. Smt. Kali and Lt. Shri Laxminarayan Rathore
+      Granddaughter of Lt. Smt. Kali and Lt. <br/> Shri Laxminarayan Rathore
     </p>
   </div>
 
@@ -243,7 +307,6 @@
 <!-- END: HeroIntroSection -->
 <!-- BEGIN: ScratchOffSaveTheDate -->
 <section class="py-10 px-6 bg-brand-ivory text-center relative border-b border-brand-border" data-purpose="scratch-save-the-date">
-<span class="text-[10px] tracking-[0.28em] uppercase text-brand-gold-text font-semibold">THE DATE</span>
 <h2 class="font-serif text-3xl text-brand-maroon mt-1">Save the Date</h2>
 <p class="text-xs text-stone-500 font-serif italic mt-1">Scratch below using your finger or mouse to reveal</p>
 <!-- 3 Interactive Scratch Cards (Month - Day - Year) -->
@@ -274,7 +337,7 @@
 </div>
 </div>
 <div class="hidden mt-4 text-xs text-brand-maroon font-semibold tracking-wider animate-pulse" id="scratch-completed-msg">
-      ✦ A Little Magic, A Life Time Of Love ✦ </p> ✦ 08 - 09 December, 2026 ✦ </p>
+      ✦ A Little Magic, A Life Time Of Love ✦
     </div>
 </section>
 <!-- END: ScratchOffSaveTheDate -->
@@ -1271,85 +1334,58 @@
 </script>
 <!-- END: CountdownAndPetalsPhysics -->
 <!-- BEGIN: RsvpInteractiveHandlers (Direct Handling for akshatrathore884@gmail.com) -->
-<script data-purpose="rsvp-form-handlers">
-    const btnAccept = document.getElementById('btn-accept');
-    const btnDecline = document.getElementById('btn-decline');
-    const attendanceStatus = document.getElementById('attendance-status');
+<script>
+const weddingAudio = document.getElementById('wedding-audio');
+const musicToggle = document.getElementById('music-toggle');
+const musicIcon = document.getElementById('music-icon');
+const musicLabel = document.getElementById('music-label');
 
-    btnAccept.addEventListener('click', () => {
-      attendanceStatus.value = 'Joyfully Accept';
-      btnAccept.className = 'py-3 px-2 rounded-xl text-[11px] font-semibold tracking-wider border transition bg-brand-maroon text-white border-brand-maroon shadow-sm';
-      btnDecline.className = 'py-3 px-2 rounded-xl text-[11px] font-semibold tracking-wider border transition bg-white text-stone-600 border-stone-300 hover:border-brand-maroon';
-    });
+weddingAudio.volume = 0.65;
 
-    btnDecline.addEventListener('click', () => {
-      attendanceStatus.value = 'Regretfully Decline';
-      btnDecline.className = 'py-3 px-2 rounded-xl text-[11px] font-semibold tracking-wider border transition bg-brand-maroon text-white border-brand-maroon shadow-sm';
-      btnAccept.className = 'py-3 px-2 rounded-xl text-[11px] font-semibold tracking-wider border transition bg-white text-stone-600 border-stone-300 hover:border-brand-maroon';
-    });
+// Synchronize button with actual audio state
+function updateMusicButton() {
+    const isPlaying = !weddingAudio.paused;
 
-    const rsvpForm = document.getElementById('rsvp-form');
-    const rsvpModal = document.getElementById('rsvp-modal');
-    const closeModalBtn = document.getElementById('close-modal-btn');
+    musicToggle.classList.toggle('is-playing', isPlaying);
 
-    rsvpForm.addEventListener('submit', async (e) => {
-  e.preventDefault();
-
-  const name = document.getElementById('guest-name').value.trim();
-  const phone = document.getElementById('guest-phone').value.trim();
-  const attendance = document.getElementById('attendance-status').value;
-  const partySize = document.getElementById('party-size').value;
-  const song = document.getElementById('dance-song').value.trim();
-  const diet = document.getElementById('dietary-pref').value;
-  const advice = document.getElementById('marriage-advice').value.trim();
-
-  const events = Array.from(
-    document.querySelectorAll('.event-check:checked')
-  )
-    .map(input => input.value)
-    .join(', ');
-
-  const data = {
-    name: name,
-    phone: phone,
-    attendance: attendance,
-    partySize: partySize,
-    events: events,
-    song: song,
-    diet: diet,
-    advice: advice
-  };
-
-  try {
-    await fetch(
-      'https://script.google.com/macros/s/AKfycbzNhX4IRqw62fPke7zTbvnFWzUaUn7hGNAMQQJpwzjOg4Rgus99OVbEA3nOICbw6PoY/exec',
-      {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: {
-          'Content-Type': 'text/plain;charset=utf-8'
-        },
-        body: JSON.stringify(data)
-      }
+    musicToggle.setAttribute(
+        'aria-label',
+        isPlaying ? 'Turn music off' : 'Turn music on'
     );
+}
 
-    rsvpModal.classList.remove('hidden');
-    rsvpModal.classList.add('flex');
+// Start music
+async function playWeddingMusic() {
+    try {
+        await weddingAudio.play();
+        updateMusicButton();
+    } catch (error) {
+        console.log('Browser blocked music autoplay.');
+        updateMusicButton();
+    }
+}
 
-    rsvpForm.reset();
+// Music ON/OFF button
+musicToggle.addEventListener('click', async () => {
+    if (weddingAudio.paused) {
+        await playWeddingMusic();
+    } else {
+        weddingAudio.pause();
+    }
 
-    document.getElementById('attendance-status').value = 'Joyfully Accept';
-
-  } catch (error) {
-    console.error('RSVP submission error:', error);
-    alert('Sorry, your RSVP could not be submitted. Please try again.');
-  }
+    updateMusicButton();
 });
 
-    closeModalBtn.addEventListener('click', () => {
-      rsvpModal.classList.add('hidden');
-      rsvpModal.classList.remove('flex');
-    });
+// Keep button synchronized with audio
+weddingAudio.addEventListener('play', updateMusicButton);
+weddingAudio.addEventListener('pause', updateMusicButton);
+weddingAudio.addEventListener('ended', updateMusicButton);
+
+// Attempt autoplay
+window.addEventListener('load', playWeddingMusic);
+
+// Initial button state
+updateMusicButton();
 </script>
 <!-- END: RsvpInteractiveHandlers -->
  <script>
