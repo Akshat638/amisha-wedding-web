@@ -1337,12 +1337,12 @@
 <script>
 const weddingAudio = document.getElementById('wedding-audio');
 const musicToggle = document.getElementById('music-toggle');
-const musicIcon = document.getElementById('music-icon');
-const musicLabel = document.getElementById('music-label');
 
 weddingAudio.volume = 0.65;
 
-// Synchronize button with actual audio state
+// Remember if the guest manually turned music OFF
+let manuallyTurnedOff = false;
+
 function updateMusicButton() {
     const isPlaying = !weddingAudio.paused;
 
@@ -1354,38 +1354,50 @@ function updateMusicButton() {
     );
 }
 
-// Start music
+// Play music
 async function playWeddingMusic() {
+    if (manuallyTurnedOff || !weddingAudio.paused) return;
+
     try {
         await weddingAudio.play();
-        updateMusicButton();
     } catch (error) {
         console.log('Browser blocked music autoplay.');
-        updateMusicButton();
     }
+
+    updateMusicButton();
 }
 
-// Music ON/OFF button
+// Speaker button ON/OFF
 musicToggle.addEventListener('click', async () => {
+
     if (weddingAudio.paused) {
+        manuallyTurnedOff = false;
         await playWeddingMusic();
     } else {
+        manuallyTurnedOff = true;
         weddingAudio.pause();
     }
 
     updateMusicButton();
 });
 
-// Keep button synchronized with audio
+// Sync button with actual audio
 weddingAudio.addEventListener('play', updateMusicButton);
 weddingAudio.addEventListener('pause', updateMusicButton);
-weddingAudio.addEventListener('ended', updateMusicButton);
 
-// Attempt autoplay
+// Try autoplay on page load
 window.addEventListener('load', playWeddingMusic);
+
+// Try playing when guest scrolls
+window.addEventListener('scroll', () => {
+    if (!manuallyTurnedOff && weddingAudio.paused) {
+        playWeddingMusic();
+    }
+}, { passive: true });
 
 // Initial button state
 updateMusicButton();
+
 </script>
 <!-- END: RsvpInteractiveHandlers -->
  <script>
