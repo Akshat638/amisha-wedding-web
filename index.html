@@ -206,6 +206,63 @@
     from { transform: scale(1); opacity: 0.7; }
     to { transform: scale(1.2); opacity: 1; }
 }
+/* Scroll indicator */
+.scroll-hint {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin-top: 26px;
+  transition: opacity 0.6s ease, transform 0.6s ease;
+  pointer-events: none;
+}
+.scroll-hint.is-hidden {
+  opacity: 0;
+  transform: translateY(10px);
+}
+.scroll-hint-label {
+  font-family: 'Cinzel', serif;
+  font-size: 11px;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: #9E7746;
+  padding-left: 0.4em; /* balances the letter-spacing so it stays centered */
+}
+.scroll-hint-line {
+  position: relative;
+  width: 1px;
+  height: 34px;
+  background: linear-gradient(to bottom, rgba(197,160,89,0), rgba(197,160,89,0.7));
+  overflow: visible;
+}
+.scroll-hint-line::after {
+  content: '';
+  position: absolute;
+  left: -2px;
+  top: 0;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #C5A059;
+  box-shadow: 0 0 8px rgba(197,160,89,0.8);
+  animation: scrollDot 1.8s cubic-bezier(0.45, 0, 0.25, 1) infinite;
+}
+.scroll-hint-chevron {
+  width: 12px;
+  height: 12px;
+  color: #C5A059;
+  animation: chevronBob 1.8s ease-in-out infinite;
+}
+@keyframes scrollDot {
+  0%   { transform: translateY(0);    opacity: 0; }
+  20%  { opacity: 1; }
+  80%  { opacity: 1; }
+  100% { transform: translateY(30px); opacity: 0; }
+}
+@keyframes chevronBob {
+  0%, 100% { transform: translateY(0);   opacity: 0.5; }
+  50%      { transform: translateY(4px); opacity: 1; }
+}
 </style>
 </head>
 <body class="selection:bg-brand-maroon selection:text-white">
@@ -282,7 +339,6 @@
       Granddaughter of Lt. Smt. Kali and <br/> Lt. Shri Laxminarayan Rathore
     </p>
   </div>
-<br/>
 
   <!-- Elegant Ampersand Divider -->
   <div class="flex items-center justify-center gap-3 my-5">
@@ -302,10 +358,8 @@
       Mrs. Madhuri &amp; Mr. Ashok Dubey
     </p>
     <p class="text-[11px] text-stone-500">
-      <p class="text-[11px] text-stone-500">
   Grandson of Smt. Savita and Lt. Shri Shatrughan Dubey
 </p> 
-<br/>
     </p>
   </div>
 
@@ -314,6 +368,16 @@
 <div class="mt-5 inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-brand-gold/40 bg-amber-50/70 text-[15px] tracking-[0.2.8em] text-brand-gold-text font-cormorant italic">
 <span>It's finally happening and we'd love for you to come and celebrate every little moment with us.</span>
 </div>
+
+<!-- Scroll indicator -->
+<div class="scroll-hint" id="scroll-hint" aria-hidden="true">
+  <span class="scroll-hint-label">Scroll</span>
+  <div class="scroll-hint-line"></div>
+  <svg class="scroll-hint-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M6 9l6 6 6-6"/>
+  </svg>
+</div>
+
 </div>
 </header>
 <!-- END: HeroIntroSection -->
@@ -1446,6 +1510,20 @@ rsvpForm.addEventListener('submit', function(e) {
     document.getElementById('attendance-status').value = 'Joyfully Accept';
 });
 </script>
+<script>
+(function () {
+  const hint = document.getElementById('scroll-hint');
+  if (!hint) return;
 
+  function hideHint() {
+    if (window.scrollY > 1000) {
+      hint.classList.add('is-hidden');
+      window.removeEventListener('scroll', hideHint);
+      setTimeout(() => hint.remove(), 700);
+    }
+  }
+  window.addEventListener('scroll', hideHint, { passive: true });
+})();
+</script>
 </body></html>
 <!-- RSVP deployment update -->
