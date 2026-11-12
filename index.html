@@ -1524,5 +1524,54 @@ rsvpForm.addEventListener('submit', function(e) {
   window.addEventListener('scroll', hideHint, { passive: true });
 })();
 </script>
+<script>
+(function () {
+  const acceptBtn = document.getElementById('btn-accept');
+  const declineBtn = document.getElementById('btn-decline');
+  const statusInput = document.getElementById('attendance-status');
+  const form = document.getElementById('rsvp-form');
+  const modal = document.getElementById('rsvp-modal');
+  const closeBtn = document.getElementById('close-modal-btn');
+
+  const activeClasses = ['bg-brand-maroon', 'text-white', 'border-brand-maroon', 'shadow-sm'];
+  const inactiveClasses = ['bg-white', 'text-stone-600', 'border-stone-300'];
+
+  function setActive(btn, other) {
+    btn.classList.remove(...inactiveClasses);
+    btn.classList.add(...activeClasses);
+    other.classList.remove(...activeClasses);
+    other.classList.add(...inactiveClasses);
+  }
+
+  // Attendance toggle
+  acceptBtn.addEventListener('click', function () {
+    statusInput.value = 'Joyfully Accept';
+    setActive(acceptBtn, declineBtn);
+  });
+
+  declineBtn.addEventListener('click', function () {
+    statusInput.value = 'Regretfully Decline';
+    setActive(declineBtn, acceptBtn);
+  });
+
+  // After the form resets on submit, put the buttons back to "Accept"
+  form.addEventListener('reset', function () {
+    setActive(acceptBtn, declineBtn);
+  });
+
+  // Close the success popup
+  function closeModal() {
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+  }
+
+  closeBtn.addEventListener('click', closeModal);
+
+  // Also close when tapping the dark area outside the popup
+  modal.addEventListener('click', function (e) {
+    if (e.target === modal) closeModal();
+  });
+})();
+</script>
 </body></html>
 <!-- RSVP deployment update -->
